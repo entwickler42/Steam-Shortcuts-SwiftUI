@@ -1,0 +1,43 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Xcode
+xcuserdata/
+*.xcworkspace
+*.xcodeproj/*.xcworkspace
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# App bundle
+*.app
+
+# Generated files
+.vscode/settings.local.json
+
+# Debug logs
+*.log
+
+# Temporary files
+*.swp
+*~
+.*.sw? 

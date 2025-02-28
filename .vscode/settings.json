@@ -1,0 +1,13 @@
+{
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "files.exclude": {
+        "**/.build": true,
+        "**/.swiftpm": true,
+        "**/SteamShortcutCreator.app": true,
+        "**/.DS_Store": true
+    },
+    "swift.path.buildPath": ".build",
+    "swift.publishDiagnostics": true,
+    "swift.autoGenerateLaunchConfigurations": false
+} 
