@@ -23,6 +23,10 @@ class PythonRunner {
             let scriptPath = self.gitRepository.getPythonScriptPath()
             let repoPath = self.gitRepository.repoPath
             
+            // Properly escape paths that may contain spaces
+            let escapedRepoPath = repoPath.replacingOccurrences(of: " ", with: "\\ ")
+            let escapedScriptPath = scriptPath.replacingOccurrences(of: " ", with: "\\ ")
+            
             // Make sure setup.py exists
             let setupPath = "\(repoPath)/setup.py"
             if !FileManager.default.fileExists(atPath: setupPath) {
@@ -35,7 +39,29 @@ class PythonRunner {
                                      .joined(separator: " ")
             
             // Run setup.py first to ensure virtual environment, then run the script
-            let command = "cd \(repoPath) && python3 \(setupPath) && python3 \"\(scriptPath)\" \(escapedArgs)"
+            // First, check if virtual environment exists
+            let venvPath = "\(repoPath)/.venv"
+            let venvExists = FileManager.default.fileExists(atPath: venvPath)
+            
+            // Build the command to set up the environment and run the script
+            var setupCommands = [String]()
+            
+            // If venv doesn't exist, create it and install requirements
+            if !venvExists {
+                setupCommands.append("cd \"\(repoPath)\"")
+                setupCommands.append("python3 -m venv \".venv\"")
+                setupCommands.append("source \".venv/bin/activate\"")
+                setupCommands.append("pip install -r \"requirements.txt\"")
+                setupCommands.append("pip install -e .")
+            } else {
+                setupCommands.append("cd \"\(repoPath)\"")
+                setupCommands.append("source \".venv/bin/activate\"")
+            }
+            
+            // Add the command to run the script
+            setupCommands.append("python3 \"\(scriptPath)\" \(escapedArgs)")
+            
+            let command = setupCommands.joined(separator: " && ")
             
             print("Executing command: \(command)")
             

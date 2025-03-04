@@ -88,9 +88,21 @@ struct ContentView: View {
         appState.updateProcessingState(isProcessing: true, status: "Processing...", logOutput: "")
         
         do {
+            // First check if repository is updated
+            if !gitRepository.isUpdated {
+                appState.updateProcessingState(isProcessing: true, status: "Updating repository...", logOutput: "Repository needs to be updated before running the script.")
+                await gitRepository.updateRepository()
+                
+                if gitRepository.hasGitError {
+                    appState.updateProcessingState(isProcessing: false, status: "Repository update failed", logOutput: "Failed to update repository: \(gitRepository.updateStatus)")
+                    return
+                }
+            }
+            
             let args = appState.buildCommandArguments()
             let pythonRunner = PythonRunner(gitRepository: gitRepository)
             
+            appState.updateProcessingState(isProcessing: true, status: "Setting up Python environment...", logOutput: "")
             let output = try await pythonRunner.runPythonScript(arguments: args)
             
             if output.contains("Error:") || output.contains("error:") {

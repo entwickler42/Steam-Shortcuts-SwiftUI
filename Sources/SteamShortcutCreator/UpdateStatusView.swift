@@ -5,13 +5,72 @@ struct UpdateStatusView: View {
     @EnvironmentObject var gitRepository: GitRepository
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            RepoStatusDisplay()
-            UpdateControlButtons()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Repository Status")
+                    .font(.headline)
+                Spacer()
+                
+                // Add buttons for opening repository and script
+                Button(action: {
+                    gitRepository.openInFinder()
+                }) {
+                    Label("Open Repo", systemImage: "folder")
+                }
+                .help("Open repository folder in Finder")
+                
+                Button(action: {
+                    gitRepository.openPythonScriptInEditor()
+                }) {
+                    Label("Open Script", systemImage: "doc.text")
+                }
+                .help("Open Python script in default editor")
+                
+                Button(action: {
+                    Task {
+                        await gitRepository.updateRepository()
+                    }
+                }) {
+                    Label("Update", systemImage: "arrow.clockwise")
+                }
+                .disabled(gitRepository.isUpdating)
+                .help("Update repository from GitHub")
+            }
+            
+            HStack {
+                Image(systemName: gitRepository.hasGitError ? "exclamationmark.triangle" : 
+                                 gitRepository.isUpdated ? "checkmark.circle" : "clock")
+                    .foregroundColor(gitRepository.hasGitError ? .red : 
+                                     gitRepository.isUpdated ? .green : .orange)
+                
+                Text(gitRepository.updateStatus)
+                    .foregroundColor(gitRepository.hasGitError ? .red : .primary)
+                
+                Spacer()
+                
+                if let lastUpdate = gitRepository.lastUpdateTime {
+                    Text("Last updated: \(lastUpdate, formatter: dateFormatter)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            if gitRepository.isUpdating {
+                ProgressView()
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .padding(.top, 4)
+            }
         }
-        .padding(12)
-        .background(Color.secondary.opacity(0.05))
+        .padding()
+        .background(Color.secondary.opacity(0.1))
         .cornerRadius(8)
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
     }
 }
 

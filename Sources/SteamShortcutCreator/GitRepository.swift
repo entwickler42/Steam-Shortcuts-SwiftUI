@@ -1,5 +1,6 @@
 import Foundation
 import ShellOut
+import AppKit
 
 /// GitRepository class responsible for managing Git operations
 class GitRepository: ObservableObject {
@@ -71,19 +72,19 @@ class GitRepository: ObservableObject {
             
             try FileManager.default.createDirectory(at: self.localRepoPath, withIntermediateDirectories: true)
             
-            // Escape the path to ensure spaces are handled correctly
-            let escapedPath = self.localRepoPath.path.replacingOccurrences(of: " ", with: "\\ ")
+            // Properly quote the path to ensure spaces are handled correctly
+            let quotedPath = "\"\(self.localRepoPath.path)\""
             
-            try shellOut(to: "git clone \(self.repoURL) \(escapedPath)")
-            try shellOut(to: "git", arguments: ["checkout", "main"], at: self.localRepoPath.path)
+            try shellOut(to: "git clone \(self.repoURL) \(quotedPath)")
+            try shellOut(to: "git", arguments: ["checkout", "main"], at: "\(self.localRepoPath.path)")
         }.value
     }
     
     /// Pull latest changes
     private func pullLatestChanges() async throws {
         try await Task.detached { [self] in
-            try shellOut(to: "git", arguments: ["fetch"], at: self.localRepoPath.path)
-            try shellOut(to: "git", arguments: ["reset", "--hard", "origin/main"], at: self.localRepoPath.path)
+            try shellOut(to: "git", arguments: ["fetch"], at: "\(self.localRepoPath.path)")
+            try shellOut(to: "git", arguments: ["reset", "--hard", "origin/main"], at: "\(self.localRepoPath.path)")
         }.value
     }
     
@@ -95,5 +96,23 @@ class GitRepository: ObservableObject {
     /// Get the path to the virtual environment activation script
     func getVenvPath() -> String {
         return localRepoPath.appendingPathComponent(".venv/bin/activate").path
+    }
+    
+    /// Get the path to the requirements.txt file
+    func getRequirementsPath() -> String {
+        return localRepoPath.appendingPathComponent("requirements.txt").path
+    }
+    
+    /// Open the repository folder in Finder
+    func openInFinder() {
+        NSWorkspace.shared.open(localRepoPath)
+    }
+    
+    /// Open the Python script in the default text editor
+    func openPythonScriptInEditor() {
+        let scriptPath = getPythonScriptPath()
+        if FileManager.default.fileExists(atPath: scriptPath) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: scriptPath))
+        }
     }
 } 
