@@ -19,7 +19,7 @@ cat > SteamShortcutCreator.app/Contents/Info.plist << EOF
     <key>CFBundleExecutable</key>
     <string>SteamShortcutCreator</string>
     <key>CFBundleIdentifier</key>
-    <string>com.example.SteamShortcutCreator</string>
+    <string>com.entwickler42.SteamShortcutCreator</string>
     <key>CFBundleName</key>
     <string>Steam Shortcut Creator</string>
     <key>CFBundleDisplayName</key>

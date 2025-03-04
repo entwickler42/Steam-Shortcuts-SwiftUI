@@ -70,21 +70,20 @@ class GitRepository: ObservableObject {
                 try FileManager.default.removeItem(at: self.localRepoPath)
             }
             
-            try FileManager.default.createDirectory(at: self.localRepoPath, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: self.localRepoPath.deletingLastPathComponent(), withIntermediateDirectories: true)
             
-            // Properly quote the path to ensure spaces are handled correctly
-            let quotedPath = "\"\(self.localRepoPath.path)\""
-            
-            try shellOut(to: "git clone \(self.repoURL) \(quotedPath)")
-            try shellOut(to: "git", arguments: ["checkout", "main"], at: "\(self.localRepoPath.path)")
+            // Use direct git commands with properly quoted paths
+            try shellOut(to: "/usr/bin/git clone \(self.repoURL) \"\(self.localRepoPath.path)\"")
+            try shellOut(to: "/usr/bin/git -C \"\(self.localRepoPath.path)\" checkout main")
         }.value
     }
     
     /// Pull latest changes
     private func pullLatestChanges() async throws {
         try await Task.detached { [self] in
-            try shellOut(to: "git", arguments: ["fetch"], at: "\(self.localRepoPath.path)")
-            try shellOut(to: "git", arguments: ["reset", "--hard", "origin/main"], at: "\(self.localRepoPath.path)")
+            // Use direct git commands with properly quoted paths
+            try shellOut(to: "/usr/bin/git -C \"\(self.localRepoPath.path)\" fetch")
+            try shellOut(to: "/usr/bin/git -C \"\(self.localRepoPath.path)\" reset --hard origin/main")
         }.value
     }
     

@@ -23,20 +23,25 @@ class PythonRunner {
             let scriptPath = self.gitRepository.getPythonScriptPath()
             let repoPath = self.gitRepository.repoPath
             
-            // Properly escape paths that may contain spaces
-            let escapedRepoPath = repoPath.replacingOccurrences(of: " ", with: "\\ ")
-            let escapedScriptPath = scriptPath.replacingOccurrences(of: " ", with: "\\ ")
-            
             // Make sure setup.py exists
             let setupPath = "\(repoPath)/setup.py"
             if !FileManager.default.fileExists(atPath: setupPath) {
                 print("Warning: setup.py not found at \(setupPath)")
             }
             
-            // Prepare the arguments
-            let escapedArgs = arguments.map { $0.replacingOccurrences(of: "\"", with: "\\\"") }
-                                     .map { "\"\($0)\"" }
-                                     .joined(separator: " ")
+            // Check if requirements.txt exists
+            let requirementsPath = "\(repoPath)/requirements.txt"
+            if !FileManager.default.fileExists(atPath: requirementsPath) {
+                print("Warning: requirements.txt not found at \(requirementsPath)")
+            }
+            
+            // Prepare the arguments with proper quoting
+            let escapedArgs = arguments.map { arg in
+                if arg.contains(" ") {
+                    return "\"\(arg)\""
+                }
+                return arg
+            }.joined(separator: " ")
             
             // Run setup.py first to ensure virtual environment, then run the script
             // First, check if virtual environment exists
@@ -50,12 +55,12 @@ class PythonRunner {
             if !venvExists {
                 setupCommands.append("cd \"\(repoPath)\"")
                 setupCommands.append("python3 -m venv \".venv\"")
-                setupCommands.append("source \".venv/bin/activate\"")
-                setupCommands.append("pip install -r \"requirements.txt\"")
-                setupCommands.append("pip install -e .")
+                setupCommands.append("source \"\(repoPath)/.venv/bin/activate\"")
+                setupCommands.append("pip install -r \"\(repoPath)/requirements.txt\"")
+                setupCommands.append("pip install -e \"\(repoPath)\"")
             } else {
                 setupCommands.append("cd \"\(repoPath)\"")
-                setupCommands.append("source \".venv/bin/activate\"")
+                setupCommands.append("source \"\(repoPath)/.venv/bin/activate\"")
             }
             
             // Add the command to run the script
@@ -77,7 +82,7 @@ class PythonRunner {
             task.standardError = errorPipe
             
             do {
-                task.launch()
+                try task.run()
                 task.waitUntilExit()
                 
                 let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
