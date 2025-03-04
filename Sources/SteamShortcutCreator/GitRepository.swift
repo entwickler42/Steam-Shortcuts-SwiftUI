@@ -4,7 +4,7 @@ import AppKit
 
 /// GitRepository class responsible for managing Git operations
 class GitRepository: ObservableObject {
-    private let repoURL = "https://github.com/entwickler42/VDF.git"
+    private let repoURL = "https://github.com/entwickler42/Steam-Shortcuts-Python.git"
     private let localRepoPath: URL
     
     @Published var isUpdating: Bool = false
@@ -22,7 +22,7 @@ class GitRepository: ObservableObject {
         // Create a directory in Application Support
         let appSupportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let appDir = appSupportDir.appendingPathComponent("SteamShortcutCreator", isDirectory: true)
-        localRepoPath = appDir.appendingPathComponent("VDF", isDirectory: true)
+        localRepoPath = appDir.appendingPathComponent("Steam-Shortcuts-Python", isDirectory: true)
         
         // Create directory if needed
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)

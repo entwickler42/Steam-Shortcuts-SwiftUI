@@ -1,6 +1,6 @@
 # Steam Shortcut Creator for macOS
 
-A SwiftUI app that provides a user-friendly interface for the [Steam macOS Shortcut Creator](https://github.com/stravs/VDF) Python script.
+A SwiftUI app that provides a user-friendly interface for the [Steam macOS Shortcut Creator](https://github.com/entwickler42/Steam-Shortcuts-Python) Python script.
 
 ## Features
 
@@ -19,7 +19,7 @@ A SwiftUI app that provides a user-friendly interface for the [Steam macOS Short
 
 ## Installation
 
-1. Download the latest release from the [Releases](https://github.com/stravs/VDF/releases) page
+1. Download the latest release from the [Releases](https://github.com/entwickler42/Steam-Shortcuts-SwiftUI/releases) page
 2. Move the app to your Applications folder
 3. Launch the app
 
